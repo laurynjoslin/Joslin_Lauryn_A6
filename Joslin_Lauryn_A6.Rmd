@@ -1,0 +1,174 @@
+---
+title: "Joslin_Lauryn_A6"
+author: "Lauryn Joslin"
+date: '2022-03-02'
+output:
+  html_document: default
+---
+
+> Lauryn Joslin 20106987
+> DNA Alignments Assignment
+
+```{r}
+#loading all packages needed
+library(BiocManager)
+library(genbankr)
+library(reshape2)
+library(rentrez)
+library(annotate)
+library(ape)
+library(muscle)
+library(dplyr)
+library(Biostrings)
+library(ggplot2)
+library(ggtree)
+```
+
+Date of Assessment:
+Wed, 2 March 2022
+
+Assessed by:
+Lauryn Joslin, Canada Public Health Agency 
+
+Reason for referral:
+non-human DNA in sample of patient's biofluids
+
+History of Present Illness:
+
+Note patient has been suffering from a life-threatening illness. Currently not taking any medication or engaged in any high risk behavior. 
+
+
+Below is the sequence of non-human DNA being accessed. This was isolated after filtering out the patients human DNA. 
+```{r}
+odd <- "> Human isolate, unknown sequence
+ATGTCTGATAATGGACCCCAAAATCAGCGAAATGCACCCCGCATTACGTTTGGTGGACCCTCAGATTCAA
+CTGGCAGTAACCAGAATGGAGAACGCAGTGGGGCGCGATCAAAACAACGTCGGCCCCAAGGTTTACCCAA
+TAATACTGCGTCTTGGTTCACCGCTCTCACTCAACATGGCAAGGAAGACCTTAAATTCCCTCGAGGACAA
+GGCGTTCCAATTAACACCAATAGCAGTCCAGATGACCAAATTGGCTACTACCGAAGAGCTACCAGACGAA
+TTCGTGGTGGTGACGGTAAAATGAAAGATCTCAGTCCAAGATGGTATTTCTACTACCTAGGAACTGGGCC
+AGAAGCTGGACTTCCCTATGGTGCTAACAAAGACGGCATCATATGGGTTGCAACTGAGGGAGCCTTGAAT
+ACACCAAAAGATCACATTGGCACCCGCAATCCTGCTAACAATGCTGCAATCGTGCTACAACTTCCTCAAG
+GAACAACATTGCCAAAAGGCTTCTACGCAGAAGGGAGCAGAGGCGGCAGTCAAGCCTCTTCTCGTTCCTC
+ATCACGTAGTCGCAACAGTTCAAGAAATTCAACTCCAGGCAGCAGTAGGGGAACTTCTCCTGCTAGAATG
+GCTGGCAATGGCGGTGATGCTGCTCTTGCTTTGCTGCTGCTTGACAGATTGAACCAGCTTGAGAGCAAAA
+TGTCTGGTAAAGGCCAACAACAACAAGGCCAAACTGTCACTAAGAAATCTGCTGCTGAGGCTTCTAAGAA
+GCCTCGGCAAAAACGTACTGCCACTAAAGCATACAATGTAACACAAGCTTTCGGCAGACGTGGTCCAGAA
+CAAACCCAAGGAAATTTTGGGGACCAGGAACTAATCAGACAAGGAACTGATTACAAACATTGGCCGCAAA
+TTGCACAATTTGCCCCCAGCGCTTCAGCGTTCTTCGGAATGTCGCGCATTGGCATGGAAGTCACACCTTC
+GGGAACGTGGTTGACCTACACAGGTGCCATCAAATTGGATGACAAAGATCCAAATTTCAAAGATCAAGTC
+ATTTTGCTGAATAAGCATATTGACGCATACAAAACATTCCCACCAACAGAGCCTAAAAAGGACAAAAAGA
+AGAAGGCTGATGAAACTCAAGCCTTACCGCAGAGACAGAAGAAACAGCAAACTGTGACTCTTCTTCCTGC
+TGCAGATTTGGATGATTTCTCCAAACAATTGCAACAATCCATGAGCAGTGCTGACTCAACTCAGGCCTAA"
+```
+
+Here is the sequence without any unneccessary text to confuse the system 
+```{r}
+oddseq <- "ATGTCTGATAATGGACCCCAAAATCAGCGAAATGCACCCCGCATTACGTTTGGTGGACCCTCAGATTCAA
+CTGGCAGTAACCAGAATGGAGAACGCAGTGGGGCGCGATCAAAACAACGTCGGCCCCAAGGTTTACCCAA
+TAATACTGCGTCTTGGTTCACCGCTCTCACTCAACATGGCAAGGAAGACCTTAAATTCCCTCGAGGACAA
+GGCGTTCCAATTAACACCAATAGCAGTCCAGATGACCAAATTGGCTACTACCGAAGAGCTACCAGACGAA
+TTCGTGGTGGTGACGGTAAAATGAAAGATCTCAGTCCAAGATGGTATTTCTACTACCTAGGAACTGGGCC
+AGAAGCTGGACTTCCCTATGGTGCTAACAAAGACGGCATCATATGGGTTGCAACTGAGGGAGCCTTGAAT
+ACACCAAAAGATCACATTGGCACCCGCAATCCTGCTAACAATGCTGCAATCGTGCTACAACTTCCTCAAG
+GAACAACATTGCCAAAAGGCTTCTACGCAGAAGGGAGCAGAGGCGGCAGTCAAGCCTCTTCTCGTTCCTC
+ATCACGTAGTCGCAACAGTTCAAGAAATTCAACTCCAGGCAGCAGTAGGGGAACTTCTCCTGCTAGAATG
+GCTGGCAATGGCGGTGATGCTGCTCTTGCTTTGCTGCTGCTTGACAGATTGAACCAGCTTGAGAGCAAAA
+TGTCTGGTAAAGGCCAACAACAACAAGGCCAAACTGTCACTAAGAAATCTGCTGCTGAGGCTTCTAAGAA
+GCCTCGGCAAAAACGTACTGCCACTAAAGCATACAATGTAACACAAGCTTTCGGCAGACGTGGTCCAGAA
+CAAACCCAAGGAAATTTTGGGGACCAGGAACTAATCAGACAAGGAACTGATTACAAACATTGGCCGCAAA
+TTGCACAATTTGCCCCCAGCGCTTCAGCGTTCTTCGGAATGTCGCGCATTGGCATGGAAGTCACACCTTC
+GGGAACGTGGTTGACCTACACAGGTGCCATCAAATTGGATGACAAAGATCCAAATTTCAAAGATCAAGTC
+ATTTTGCTGAATAAGCATATTGACGCATACAAAACATTCCCACCAACAGAGCCTAAAAAGGACAAAAAGA
+AGAAGGCTGATGAAACTCAAGCCTTACCGCAGAGACAGAAGAAACAGCAAACTGTGACTCTTCTTCCTGC
+TGCAGATTTGGATGATTTCTCCAAACAATTGCAACAATCCATGAGCAGTGCTGACTCAACTCAGGCCTAA"
+```
+
+We compared this sequence to the NCBI database
+```{r}
+oddBLAST <- blastSequences(paste(oddseq), as = "data.frame", hitListSize = 20, timeout = 600)
+```
+
+
+We got 20 matchs, all coronavirus samples specifically SARS-CoV-2 from the USA
+```{r}
+paste(oddBLAST$Hit_def)
+```
+
+```{r}
+oddhitsdf <- data.frame(ID = oddBLAST$Hit_accession, Seq = oddBLAST$Hsp_hseq, stringsAsFactors = F)
+```
+
+```{r}
+oddhitDNAstring <- oddhitsdf$Seq %>% 
+                   as.character %>%
+                   lapply(.,paste0, collapse = "") %>%
+                   unlist %>%
+                   DNAStringSet
+```
+
+```{r}
+names(oddhitDNAstring) <- paste(1:nrow(oddhitsdf), oddhitsdf$ID, sep = "_")
+```
+
+
+
+This is an alignment which shows where different genetic sequences are the same. To more clearly see where they are the same it has coloured bars. This alignment shows These 20 sequences being pretty identical. 
+```{r}
+oddalign <- muscle::muscle(stringset=oddhitDNAstring, quiet = T)
+oddalign
+```
+
+```{r}
+oddalignbin <- as.DNAbin(oddalign)
+```
+
+```{r}
+oddDM <- dist.dna(oddalignbin, model = "K80")
+```
+
+```{r}
+length(oddDM)
+```
+
+```{r}
+oddDMmat <- as.matrix(oddDM)
+```
+
+
+```{r}
+odddat <- melt(oddDMmat)
+```
+
+```{r}
+dim(odddat)
+```
+
+
+This tile graph shows all the sequences are the exact same. It would be multicoloured if they differed. 
+```{r}
+ggplot(data = odddat, aes(x=Var1, y=Var2, fill=value))+
+  geom_tile()
+```
+
+```{r}
+oddtree <- nj(oddDM)
+```
+
+
+Here is a tree showing how closely related the sequences are. Since there is only one branch it is saying that all the sequences are the same. 
+```{r}
+ggtree(oddtree)
+```
+
+Since the alignment and phylogeny clearly show an exact match for this unknown sample and the matching samples, we can say with confidence that the unknown sample in our patient's biofluids is SARS-COv-2 or Covid-19. We should compare the patient's symptoms to the known Covid-19 symptoms to see if this is causing the patients current malaise or if it is a coincidental finding. 
+
+Recommend a PCR nasal swab for further confirmation. 
+
+**Lauryn Joslin, research scientist at the Canadian Public Health Agency in Canada. Room 1234 on floor 978. Imagination Street, Kingston A1A 1A1 . Covid-19 update : our office is OPEN and continues to accept new samples. We recomend online consultations whenever reasonable. 
+
+
+
+
+
+
+
